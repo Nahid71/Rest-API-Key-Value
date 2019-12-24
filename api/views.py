@@ -15,15 +15,22 @@ redis_instance = redis.StrictRedis(host=settings.REDIS_HOST,
 def values(request, *args, **kwargs):
     if request.method == 'GET':
         values = {}
-        count = 0
-        for key in redis_instance.keys("*"):
-            values[key.decode("utf-8")] = redis_instance.get(key)
-            count += 1
-        response = {
-            'count': count,
-            'msg': f"Found {count} items.",
-            'values': values
-        }
+        if request.GET:
+            m_keys = request.GET['keys'].split()
+            for key_ in m_keys:
+                values[key_] = redis_instance.get(key_)
+            response = {
+                'msg': f"Found  items.",
+                'values': values
+            }
+        else:
+
+            for key in redis_instance.keys("*"):
+                values[key.decode("utf-8")] = redis_instance.get(key)
+            response = {
+                'msg': f"Found  items.",
+                'values': values
+            }
         return Response(response, status=200)
     elif request.method == 'POST':
         items = json.loads(request.body)
