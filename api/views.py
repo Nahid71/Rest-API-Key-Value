@@ -4,6 +4,7 @@ import redis
 from rest_framework.decorators import api_view
 from rest_framework import status
 from rest_framework.response import Response
+from datetime import timedelta
 
 # Connect to Redis instance
 redis_instance = redis.StrictRedis(host=settings.REDIS_HOST,
@@ -26,12 +27,12 @@ def values(request, *args, **kwargs):
         return Response(response, status=200)
     elif request.method == 'POST':
         items = json.loads(request.body)
-        # print(list(items.values()))
+        print(items)
         i = 0
         while i < len(items):
             key = list(items.keys())[i]
             value = list(items.values())[i]
-            redis_instance.set(key, value)
+            redis_instance.setex(key, timedelta(minutes=5), value)
             i += 1
         response = {
             'msg': f"successfully set to"
