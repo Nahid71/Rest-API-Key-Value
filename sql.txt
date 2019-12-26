@@ -1,0 +1,23 @@
+{% comment %} 1st one {% endcomment %}
+SELECT doctors.doctor_name, appointment.patient_name, TIMESTAMP(slots.date, slots.time) AS slot_date_time
+FROM ((appointment
+INNER JOIN doctors ON appointment.doctor_id = doctors.id)
+INNER JOIN slots ON appointment.slot_id = slots.id)
+WHERE MONTH(slots.date) =10
+ORDER BY slot_date_time;
+
+{% comment %} 2nd one {% endcomment %}
+SELECT  d.doctor_name AS doctor_name, 
+COUNT(a.doctor_id) AS appointment_count
+FROM doctors d
+LEFT JOIN appointment a
+ON a.doctor_id = d.id
+GROUP BY d.id ORDER BY appointment_count DESC LIMIT 1
+
+{% comment %} 3rd one {% endcomment %}
+SELECT d.doctor_name, SUM(s.duration) AS total_duration
+FROM ((doctors d
+INNER JOIN appointment a ON a.doctor_id = d.id)
+INNER JOIN slots s ON a.slot_id = s.id)
+GROUP BY a.doctor_id
+ORDER BY total_duration ASC;

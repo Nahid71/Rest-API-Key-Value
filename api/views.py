@@ -19,7 +19,7 @@ def values(request, *args, **kwargs):
             m_keys = request.GET['keys'].split(',')
             for key_ in m_keys:
                 values[key_] = redis_instance.get(key_)
-                redis_instance.pexpire(key_, timedelta(minutes=1))
+                redis_instance.pexpire(key_, timedelta(minutes=5))
             if values:
                 msg = "Found items"
             else:
@@ -32,6 +32,7 @@ def values(request, *args, **kwargs):
 
             for key in redis_instance.keys("*"):
                 values[key.decode("utf-8")] = redis_instance.get(key)
+                redis_instance.pexpire(key, timedelta(minutes=5))
 
             if values:
                 msg = "Found items"
@@ -44,17 +45,23 @@ def values(request, *args, **kwargs):
         return Response(response, status=200)
 
     elif request.method == 'POST':
-        items = json.loads(request.body)
-        i = 0
-        while i < len(items):
-            key = list(items.keys())[i]
-            value = list(items.values())[i]
-            redis_instance.setex(key, timedelta(minutes=1), value)
-            i += 1
-        response = {
-            'msg': "Successfully store the vaules"
-        }
-        return Response(response, 201)
+        if request.body:
+            items = json.loads(request.body)
+            i = 0
+            while i < len(items):
+                key = list(items.keys())[i]
+                value = list(items.values())[i]
+                redis_instance.setex(key, timedelta(minutes=5), value)
+                i += 1
+            response = {
+                'msg': "Successfully store the vaules"
+            }
+            return Response(response, 201)
+        else:
+            response = {
+                'msg': "No data are given"
+            }
+            return Response(response, 404)
 
     elif request.method == 'PUT':
         request_data = json.loads(request.body)
@@ -63,7 +70,7 @@ def values(request, *args, **kwargs):
             new_value = request_data[key_]
             old_value = redis_instance.get(key_)
             if old_value:
-                redis_instance.setex(key_, timedelta(minutes=1), new_value)
+                redis_instance.setex(key_, timedelta(minutes=5), new_value)
                 i += 1
         if i > 0:
             msg = f"Successfully updated {i} values"
