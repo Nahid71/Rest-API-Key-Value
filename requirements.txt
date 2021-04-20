@@ -40,7 +40,7 @@ Pint==0.9
 plotly==4.4.1
 pluggy==0.13.1
 publib==0.3.3
-py==1.8.0
+py==1.10.0
 pycparser==2.19
 Pygments==2.5.2
 pyparsing==2.4.5
